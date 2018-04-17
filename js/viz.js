@@ -1,5 +1,5 @@
 var WIDTH = screen.width - 150
-var HEIGHT = screen.width
+var HEIGHT = window.innerHeight
 var rectw = 70;
 var colors = ["#00a0b0", "#FF0000", "#76448A", "#283747", "#2874A6", "#F5B041"];  
 var rects = [];
@@ -18,17 +18,24 @@ var screenWidth = window.innerWidth;
 
 var svg = d3.select("#teachersvg").append("svg")
     .attr("width", WIDTH)
-    .attr("height", HEIGHT)
+    .attr("height", HEIGHT - 175)
     .append("g");
 
 d3.tsv("Capstone Data.tsv", function(error, data) {
   d3.select("#racecheck").on("change",update);
   d3.select("#gendercheck").on("change",update);
+  d3.select("#agecheck").on("change",update);
   
   rects = svg.selectAll(".teacher")
     .data(data)
     .enter().append("image")
-    .attr("xlink:href", function(d, i) { return ("img/female" + (i+1) + ".png");})
+    .attr("xlink:href", function(d, i) { 
+      if (d['Gender'] == 'Male') {
+        return ("img/male" + (i+1) + ".png");
+      } else {
+        return ("img/female" + (i+1) + ".png");
+      }
+    })
     .attr("class", "teacher")
     .attr('x', function (d, i) { return (WIDTH / (data.length + 1) * i);})
     .attr('y', function (d, i) {return 60;})
@@ -45,50 +52,60 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
 
   function handleMouseClick(d1, i) {
     div.html("");
+    svg.selectAll(".label").remove()
+    counter = {'rga': 0, 'rg': 0, 'ra': 0, 'ga': 0 ,'r': 0, 'g': 0, 'a': 0};
     if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")  && !grouplevel){
-      counter = 0
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
         .attr('x', function(d, i) { 
           if (d['Race'] == d1['Race'] && d['Gender'] == d1['Gender']) {
-            w = counter*(rectw+5)
-            counter += 1
+            w = counter.rg*(rectw+5)
+            counter.rg += 1
             return w;
           }
           else {return WIDTH;}
         })
       grouplevel = true;
     } else if(d3.select("#racecheck").property("checked") && !grouplevel){
-        counter = 0
         d3.selectAll(".teacher")
           .transition()
           .attr("duration", 1000)
           .attr('x', function(d, i) { 
             if (d['Race'] == d1['Race']) {
-              w = counter*(rectw+5)
-              counter += 1
+              w = counter.r*(rectw+5)
+              counter.r += 1
               return w;
             }
             else {return WIDTH;}
           })
         grouplevel = true;
     } else if(d3.select("#gendercheck").property("checked")  && !grouplevel){
-      counter = 0
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
         .attr('x', function(d, i) { 
           if (d['Gender'] == d1['Gender']) {
-            w = counter*(rectw+5)
-            counter += 1
+            w = counter.g*(rectw+5)
+            counter.g += 1
             return w;
           }
           else {return WIDTH;}
         })
       grouplevel = true;
     } else if(d3.select("#agecheck").property("checked")  && !grouplevel){
-      console.log("TODO")
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr('x', function(d, i) { 
+          if ((d1['Age'] <= 50 && d['Age'] <= 50) || (d1['Age'] > 50 && d1['Age'] <= 60 && d['Age'] <= 60 && d['Age'] > 50)) {
+            w = counter.a*(rectw+5)
+            counter.a += 1
+            return w;
+          }
+          else {return WIDTH;}
+        })
+      grouplevel = true;
     } else {
       grouplevel = false;
       d3.selectAll(".teacher")
@@ -102,6 +119,8 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
         handleOneView(d1, r)
         makeQuestionText(d1)
     }
+
+    console.log(counter)
   }
 
   function makeQuestionText(d) {
@@ -316,7 +335,14 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
       })
       displaytext = d.Gender;
     } else if(d3.select("#agecheck").property("checked")  && !grouplevel){
-      console.log("TODO")
+      d3.selectAll(".teacher")
+      .transition()
+      .attr("duration", 10)
+      .attr("opacity", function(o) {
+          thisOpacity = ((d['Age'] <= 50 && o['Age'] <= 50) || (d['Age'] > 50 && d['Age'] <= 60 && o['Age'] <= 60 && o['Age'] > 50)) ? 1 : opacity;
+          return thisOpacity;
+      })
+      displaytext = d.Age;
     } else {   
       d3.selectAll(".teacher")
       .transition()
@@ -334,32 +360,82 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
   }
 
   function update(){
-    console.log(WIDTH)
-    d3.selectAll(".donutArcs")
-    .remove()
-    d3.selectAll(".donutText")
-    .remove()
-    svg.select("rect.teachrect")
-      .remove()
-    svg.select("text.teacherdata")
-      .remove()
-    svg.select("text.name")
-      .remove()
-    svg.select("text.gender")
-      .remove()
-    svg.select("text.race")
-      .remove()
-    svg.select("text.age")
-      .remove()
+    d3.selectAll(".donutArcs").remove()
+    d3.selectAll(".donutText").remove()
+    svg.select("rect.teachrect").remove()
+    svg.select("text.teacherdata").remove()
+    svg.select("text.name").remove()
+    svg.select("text.gender").remove()
+    svg.select("text.race").remove()
+    svg.select("text.age").remove()
+    svg.selectAll(".label").remove()
     div.html("");
-    //TODO transitions http://bl.ocks.org/cartoda/035f893cd5fc86bb955f
-    if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")){
-      wmcount = 0;
-      bmcount = 0;
-      fmcount = 0;
-      wfcount = 0;
-      bfcount = 0;
-      ffcount = 0;
+
+    if(d3.select("#agecheck").property("checked") && d3.select("#gendercheck").property("checked")){
+      counter = {'40-50 and ': 0, '51-60 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
+      pos = {'40-50 and Male': 0, '51-60 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr("transform", "translate(100,0)")
+        .attr('y', r + .5*r - rectw)
+        .attr("x", function(d) {
+          if (d["Age"] <= 50 && d["Gender"] == "Male") {
+            w = counter['40-50 and Male']*(rectw+5);
+            counter['40-50 and Male'] += 1;
+            pos['40-50 and Male'] += w
+            return w;}
+          if (d["Age"] > 51 && d["Age"] <= 60 && d['Gender'] == "Male") {
+            w = WIDTH/4 + counter['51-60 and Male']*(rectw+5);
+            counter['51-60 and Male'] += 1;
+            pos['51-60 and Male'] += w
+            return w;}
+          if (d["Age"] <= 50 && d["Gender"] == "Female") {
+            w = WIDTH/3 + counter['40-50 and Female']*(rectw+5);
+            counter['40-50 and Female'] += 1;
+            pos['40-50 and Female'] += w
+            return w;}
+          if (d["Age"] > 51 && d["Age"] <= 60 && d['Gender'] == "Female") {
+            w = WIDTH/2 + counter['51-60 and Female']*(rectw+5);
+            counter['51-60 and Female'] += 1;
+            pos['51-60 and Female'] += w
+            return w;}
+        })
+      textlabels(counter, pos)
+    } else if(d3.select("#agecheck").property("checked") && d3.select("#racecheck").property("checked")){
+      counter = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Filipino': 0, '51-60 and Filipino': 0};
+      pos = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Filipino': 0, '51-60 and Filipino': 0};
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr("transform", "translate(100,0)")
+        .attr('y', r + .5*r - rectw)
+        .attr("x", function(d) {
+          if (d["Age"] <= 50 && d["Race"] == "White") {
+            w = counter['40-50 and White']*(rectw+5);
+            counter['40-50 and White'] += 1;
+            pos['40-50 and White'] += w
+            return w;}
+          if (d["Age"] > 51 && d["Age"] <= 60 && d["Race"] == "White") {
+            w = WIDTH/4 + counter['51-60 and White']*(rectw+5);
+            counter['51-60 and White'] += 1;
+            pos['51-60 and White'] += w
+            return w;}
+          if (d["Age"] <= 50 && d["Race"] == "Filipino") {
+            w = WIDTH/3 + counter['40-50 and Filipino']*(rectw+5);
+            counter['40-50 and Filipino'] += 1;
+            pos['40-50 and Filipino'] += w
+            return w;}
+          if (d["Age"] > 51 && d["Age"] <= 60 && d["Race"] == "Filipino") {
+            w = WIDTH/2 + counter['51-60 and Filipino']*(rectw+5);
+            counter['51-60 and Filipino'] += 1;
+            pos['51-60 and Filipino'] += w
+            return w;}
+        })
+      textlabels(counter, pos)
+    } else if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")){
+      counter = {'wmcount': 0, 'bmcount': 0, 'fmcount': 0, 'wfcount': 0 ,'bfcount': 0, 'ffcount': 0};
+
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -367,35 +443,33 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
       .attr('y', r + .5*r - rectw)
       .attr("x", function(d) {
         if (d["Race"] == "White" && d["Gender"] == "Male") {
-          w = wmcount*(rectw+5);
-          wmcount += 1;
+          w = counter.wmcount*(rectw+5);
+          counter.wmcount += 1;
           return w;}
         if (d["Race"] == "Black" && d["Gender"] == "Male") {
-          w = WIDTH/8 + bmcount*(rectw+5);
-          bmcount += 1;
+          w = WIDTH/8 + counter.bmcount*(rectw+5);
+          counter.bmcount += 1;
           return w;}
         if (d["Race"] == "Filipino" && d["Gender"] == "Male") {
-          w = WIDTH/5 + fmcount*(rectw+5);
-          fmcount += 1;
+          w = WIDTH/5 + counter.fmcount*(rectw+5);
+          counter.fmcount += 1;
           return w;}
         if (d["Race"] == "White" && d["Gender"] == "Female") {
-          w = WIDTH/4 + wfcount*(rectw+5);
-          wfcount += 1;
+          w = WIDTH/4 + counter.wfcount*(rectw+5);
+          counter.wfcount += 1;
           return w;}
         if (d["Race"] == "Black" && d["Gender"] == "Female") {
-          w = WIDTH/3 + bfcount*(rectw+5);
-          bfcount += 1;
+          w = WIDTH/3 + counter.bfcount*(rectw+5);
+          counter.bfcount += 1;
           return w;}
         if (d["Race"] == "Filipino" && d["Gender"] == "Female") {
-          w = WIDTH/2+ ffcount*(rectw+5);
-          ffcount += 1;
+          w = WIDTH/2+ counter.ffcount*(rectw+5);
+          counter.ffcount += 1;
           return w;}
       });
     }else if(d3.select("#racecheck").property("checked")){
-      wcount = 0;
-      bcount = 0;
-      fcount = 0;
-
+      counter = {'White': 0, 'Black': 0, 'Filipino': 0};
+      pos = {'White': 0, 'Black': 0, 'Filipino': 0}
       d3.selectAll(".teacher")
       .transition()
       .attr("duration", 1000)
@@ -403,21 +477,26 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
       .attr("transform", "translate(100,0)")
       .attr("x", function(d) {
         if (d["Race"] == "White") {
-          w = wcount*(rectw+5);
-          wcount += 1;
+          w = counter.White*(rectw+5);
+          counter.White += 1;
+          pos.White += w
           return w;}
         if (d["Race"] == "Black") {
-          w = WIDTH/3 + bcount*(rectw+5);
-          bcount += 1;
+          w = WIDTH/3 + counter.Black*(rectw+5);
+          counter.Black += 1;
+          pos.Black += w
           return w;}
         if (d["Race"] == "Filipino") {
-          w = WIDTH/1.5 + fcount*(rectw+5);
-          fcount += 1;
+          w = WIDTH/1.5 + counter.Filipino*(rectw+5);
+          counter.Filipino += 1;
+          pos.Filipino += w
           return w;}
       });
+      textlabels(counter, pos)
+
     } else if(d3.select("#gendercheck").property("checked")){
-      mcount = 0;
-      fcount = 0;
+      counter = {'Male': 0, 'Female': 0};
+      pos = {'Male': 0, 'Female': 0}
 
       d3.selectAll(".teacher")
         .transition()
@@ -426,17 +505,40 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
         .attr('y', r + .5*r - rectw)
         .attr("x", function(d) {
           if (d["Gender"] == "Male") {
-            w = mcount*(rectw+5);
-            mcount += 1;
+            w = counter.Male*(rectw+5);
+            counter.Male += 1;
+            pos.Male += w
             return w;}
           if (d["Gender"] == "Female") {
-            w = WIDTH/2 + fcount*(rectw+5);
-            fcount += 1;
+            w = WIDTH/2 + counter.Female*(rectw+5);
+            counter.Female += 1;
+            pos.Female += w
             return w;}
         })
+      textlabels(counter, pos)
 
     } else if(d3.select("#agecheck").property("checked")){
-      console.log("TODO");
+      counter = {'40-50': 0, '51-60': 0};
+      pos = {'40-50': 0, '51-60': 0}
+
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr("transform", "translate(100,0)")
+        .attr('y', r + .5*r - rectw)
+        .attr("x", function(d) {
+          if (d["Age"] <= 50) {
+            w = counter['40-50']*(rectw+5);
+            counter['40-50'] += 1;
+            pos['40-50'] += w
+            return w;}
+          if (d["Age"] > 51 && d["Age"] <=60) {
+            w = WIDTH/2 + counter['51-60']*(rectw+5);
+            counter['51-60'] += 1;
+            pos['51-60'] += w
+            return w;}
+        })
+      textlabels(counter, pos)
 
     } else {
       console.log("here")
@@ -449,6 +551,23 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
     }
   }
 });
+
+function textlabels(counter, pos) {
+  desc = d3.select("g")
+    .attr("transform", function(d, i) { return "translate(0,0)"; });      
+
+  for (var entry in counter) {
+    if (counter[entry] > 0) {
+      desc.append("text")
+        .attr("class", "label")
+        .attr("transform", "translate(100,0)")
+        .attr("x", pos[entry]/counter[entry] + rectw/5)
+        .attr("y", r + .5*r + rectw/3)
+        .style("text-anchor", "left")
+        .text(entry);
+    }
+  }
+}
 
 function wrap(text, width) {
     text.each(function () {
