@@ -5,27 +5,29 @@ var colors = ["#00a0b0", "#FF0000", "#76448A", "#283747", "#2874A6", "#F5B041"];
 var rects = [];
 var r = 150
 var simulation = d3.forceSimulation(rects);
-var div = d3.select("body").append("div") 
-    .attr("class", "tooltip")       
-    .style("opacity", 0);
 var grouplevel = false;
 var singledes = d3.select("body").append("div")
 var screenWidth = window.innerWidth;
-
-    var margin = {left: 20, top: 20, right: 20, bottom: 20},
-      width = Math.min(screenWidth, 500) - margin.left - margin.right,
-      height = Math.min(screenWidth, 500) - margin.top - margin.bottom;
+var margin = {left: 20, top: 20, right: 20, bottom: 20},
+  width = Math.min(screenWidth, 500) - margin.left - margin.right,
+  height = Math.min(screenWidth, 500) - margin.top - margin.bottom;
 
 var svg = d3.select("#teachersvg").append("svg")
-    .attr("width", WIDTH)
-    .attr("height", HEIGHT - 175)
-    .append("g");
+  .attr("width", WIDTH)
+  .attr("height", HEIGHT - 175)
+  .append("g");
 
-d3.tsv("Capstone Data.tsv", function(error, data) {
+var div = d3.select("#teachersvg").append("div") 
+      .attr("class", "simdiff")
+
+var divdiff = d3.select("#teachersvg").append("div") 
+      .attr("class", "simdiff")
+
+
+d3.csv("Capstone Data.csv", function(error, data) {
   d3.select("#racecheck").on("change",update);
   d3.select("#gendercheck").on("change",update);
   d3.select("#agecheck").on("change",update);
-  
   rects = svg.selectAll(".teacher")
     .data(data)
     .enter().append("image")
@@ -51,10 +53,77 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
   update();
 
   function handleMouseClick(d1, i) {
-    div.html("");
+    //div.html("");
+    w = 500
+    h = 200
     svg.selectAll(".label").remove()
-    counter = {'rga': 0, 'rg': 0, 'ra': 0, 'ga': 0 ,'r': 0, 'g': 0, 'a': 0};
-    if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")  && !grouplevel){
+    svg.selectAll("text.name").remove()
+    div.html("").style("height", "0px").style("width", "0px");
+    divdiff.html("").style("height", "0px").style("width", "0px");
+    counter = {'rga': 0, 'rg': 0, 'ra': 0, 'ga': 0 ,'r': 0, 'g': 0, 'a': 0};  
+
+    if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked") && d3.select("#racecheck").property("checked") && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr('x', function(d, i) { 
+          if (d['Gender'] == d1['Gender'] && d['Race'] == d1['Race'] && ((d1['Age'] <= 50 && d['Age'] <= 50) || (d1['Age'] > 50 && d1['Age'] <= 60 && d['Age'] <= 60 && d['Age'] > 50))) {
+            w = counter.rga*(rectw+5)
+            counter.rga += 1
+            return w;
+          }
+          else {return WIDTH;}
+        })
+        if (counter.rga == 1) {
+          oneteacher(d1);
+        } else {
+          grouplevel = false;
+          makesimdifftext(simtext, difftext, counter.rga)
+          makegroupname("Group: " + d1['Race'] + ", " + d1['Gender'] + " and ", true, d1['Age'])
+        }
+    } else if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked")  && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr('x', function(d, i) { 
+          if (d['Gender'] == d1['Gender'] && ((d1['Age'] <= 50 && d['Age'] <= 50) || (d1['Age'] > 50 && d1['Age'] <= 60 && d['Age'] <= 60 && d['Age'] > 50))) {
+            w = counter.ga*(rectw+5)
+            counter.ga += 1
+            return w;
+          }
+          else {return WIDTH;}
+        })
+        grouplevel = false;
+        makesimdifftext(simtext, difftext, counter.ga)
+        makegroupname("Group: " + d1['Gender'] + " and ", true, d1['Age'])
+    } else if(d3.select("#racecheck").property("checked") && d3.select("#agecheck").property("checked")  && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr('x', function(d, i) { 
+          if (d['Race'] == d1['Race'] && ((d1['Age'] <= 50 && d['Age'] <= 50) || (d1['Age'] > 50 && d1['Age'] <= 60 && d['Age'] <= 60 && d['Age'] > 50))) {
+            w = counter.ra*(rectw+5)
+            counter.ra += 1
+            return w;
+          }
+          else {return WIDTH;}
+        })
+        if (counter.ra == 1) {
+          oneteacher(d1);
+        } else {
+          grouplevel = false;
+          makesimdifftext(simtext, difftext, counter.ra)
+          makegroupname("Group: " + d1['Race'] +  " and ", true, d1['Age'])
+        }
+    } else if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")  && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -66,8 +135,16 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           }
           else {return WIDTH;}
         })
-      grouplevel = true;
-    } else if(d3.select("#racecheck").property("checked") && !grouplevel){
+        if (counter.rg == 1) {
+          oneteacher(d1);
+        } else {
+          grouplevel = false;
+          makesimdifftext(simtext, difftext, counter.rg)
+          makegroupname("Group: " + d1['Race'] + " and " + d1['Gender'], false, 0)
+        }
+    } else if(d3.select("#racecheck").property("checked") && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
         d3.selectAll(".teacher")
           .transition()
           .attr("duration", 1000)
@@ -79,8 +156,16 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
             }
             else {return WIDTH;}
           })
-        grouplevel = true;
-    } else if(d3.select("#gendercheck").property("checked")  && !grouplevel){
+        if (counter.r == 1) {
+          oneteacher(d1);
+        } else {
+          grouplevel = false;
+          makesimdifftext(simtext, difftext, counter.r)
+          makegroupname("Group: " + d1['Race'], false, 0)
+        }
+    } else if(d3.select("#gendercheck").property("checked")  && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -92,8 +177,12 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           }
           else {return WIDTH;}
         })
-      grouplevel = true;
-    } else if(d3.select("#agecheck").property("checked")  && !grouplevel){
+        grouplevel = false;
+        makesimdifftext(simtext, difftext, counter.g)
+        makegroupname("Group: " + d1['Gender'], false, 0)
+    } else if(d3.select("#agecheck").property("checked")  && grouplevel){
+      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
+      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -105,10 +194,16 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           }
           else {return WIDTH;}
         })
-      grouplevel = true;
+        grouplevel = false;
+        makesimdifftext(simtext, difftext, counter.a)
+        makegroupname("Group: ", true, d1['Age'])
     } else {
-      grouplevel = false;
-      d3.selectAll(".teacher")
+      oneteacher(d1);
+    }
+  }
+
+  function oneteacher(d1) {
+    d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
         .attr('x', function(d, i) { 
@@ -118,14 +213,58 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
         .attr('y', r + .5*r - rectw)
         handleOneView(d1, r)
         makeQuestionText(d1)
-    }
-
-    console.log(counter)
+        grouplevel = false;
   }
 
+  function makegroupname(name, useage, age) {
+    groupname = d3.select("g")
+
+    if (useage && age <= 50) {
+      name += "40-50"
+    } else if (useage) {
+      name += "51-60"
+    }
+
+   groupname.append("text")
+        .attr("class", "name")
+        .attr("x", 110)
+        .attr("y", r + .65*r)
+        .style("text-anchor", "left")
+        .text(name)
+  }
+
+  function makesimdifftext(simtext, difftext, counter) {
+      if (counter >= 6) {
+        left = WIDTH/8 + counter*rectw + counter*5;
+      } else {
+        left = WIDTH/2;
+      }
+      bottom = .79*HEIGHT
+
+      if (counter == 8)  {
+        wid = 400;
+      } else {
+        wid = 500;
+      }
+
+      div.html(simtext)  
+      .style("left", left+"px")
+      .style("bottom", bottom+"px")
+      .style("height", "200px")
+      .style("width", wid+"px");
+
+      divdiff.html(difftext)  
+      .style("left", left+"px")
+      .style("bottom", .95*bottom+"px")
+      .style("height", "200px")
+      .style("width", wid+"px");
+  }
+
+
   function makeQuestionText(d) {
-    svg.select("rect.teachrect")
-      .remove()
+    svg.selectAll("rect.teachrect").remove()
+    svg.selectAll("text.teacherdata").remove();
+
     var w = 300
     var h = 300
     var questiontext = "Click on a Question to show the teacher's response!"
@@ -194,7 +333,7 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
       {name: "Q2",    value: 15, data: d['Current Job in Education'], question: 'Current Job in Education'},
       {name: "Q3",   value: 15, data: d['Past Jobs in Education'], question: 'Past Jobs in Education'},
       {name: "Q4",   value: 15, data: d['3 Favorite Books '], question: '3 Favorite Books'},
-      {name: "Q5",  value: 15, data: d['Makeup of population, how does identity'], question: 'Makeup of population, how does identity'},
+      {name: "Q5",  value: 15, data: d['Makeup of population how does identity'], question: 'Makeup of population, how does identity'},
       {name: "Q6",  value: 15, data: d['Racial identity influence'], question: 'Racial identity influence'},
       {name: "Q7", value: 15, data: d['misbehaved meaning'], question: 'misbehaved meaning'},
       {name: "Q8",   value: 15, data: d['classroom setup'], question: 'classroom setup'},
@@ -306,8 +445,32 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
 
   function handleMouseOver(d, i) {
     var opacity = 0.2
-    displaytext = "";
-    if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")  && !grouplevel){
+
+    if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked")  && d3.select("#racecheck").property("checked")&& grouplevel){
+      d3.selectAll(".teacher")
+      .transition()
+      .attr("duration", 10)
+      .attr("opacity", function(o) {
+          thisOpacity = (d.Gender == o.Gender && d.Race == o.Race && ((d['Age'] <= 50 && o['Age'] <= 50) || (d['Age'] > 50 && d['Age'] <= 60 && o['Age'] <= 60 && o['Age'] > 50))) ? 1 : opacity;
+          return thisOpacity;
+      })
+    } else if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked")  && grouplevel){
+      d3.selectAll(".teacher")
+      .transition()
+      .attr("duration", 10)
+      .attr("opacity", function(o) {
+          thisOpacity = (d.Gender == o.Gender && ((d['Age'] <= 50 && o['Age'] <= 50) || (d['Age'] > 50 && d['Age'] <= 60 && o['Age'] <= 60 && o['Age'] > 50))) ? 1 : opacity;
+          return thisOpacity;
+      })
+    } else if(d3.select("#racecheck").property("checked") && d3.select("#agecheck").property("checked")  && grouplevel){
+      d3.selectAll(".teacher")
+      .transition()
+      .attr("duration", 10)
+      .attr("opacity", function(o) {
+          thisOpacity = (d.Race == o.Race && ((d['Age'] <= 50 && o['Age'] <= 50) || (d['Age'] > 50 && d['Age'] <= 60 && o['Age'] <= 60 && o['Age'] > 50))) ? 1 : opacity;
+          return thisOpacity;
+      })
+    } else if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")  && grouplevel){
       d3.selectAll(".teacher")
       .transition()
       .attr("duration", 10)
@@ -315,8 +478,7 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           thisOpacity = (d.Race == o.Race && d.Gender == o.Gender) ? 1 : opacity;
           return thisOpacity;
       })
-      displaytext = d.Race + " & " + d.Gender;
-    } else if(d3.select("#racecheck").property("checked")  && !grouplevel){
+    } else if(d3.select("#racecheck").property("checked")  && grouplevel){
       d3.selectAll(".teacher")
       .transition()
       .attr("duration", 10)
@@ -324,8 +486,7 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           thisOpacity = (d.Race == o.Race) ? 1 : opacity;
           return thisOpacity;
       })
-      displaytext = d.Race;
-    } else if(d3.select("#gendercheck").property("checked")  && !grouplevel){
+    } else if(d3.select("#gendercheck").property("checked")  && grouplevel){
       d3.selectAll(".teacher")
       .transition()
       .attr("duration", 10)
@@ -333,8 +494,7 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           thisOpacity = (d.Gender == o.Gender) ? 1 : opacity;
           return thisOpacity;
       })
-      displaytext = d.Gender;
-    } else if(d3.select("#agecheck").property("checked")  && !grouplevel){
+    } else if(d3.select("#agecheck").property("checked")  && grouplevel){
       d3.selectAll(".teacher")
       .transition()
       .attr("duration", 10)
@@ -342,7 +502,6 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           thisOpacity = ((d['Age'] <= 50 && o['Age'] <= 50) || (d['Age'] > 50 && d['Age'] <= 60 && o['Age'] <= 60 && o['Age'] > 50)) ? 1 : opacity;
           return thisOpacity;
       })
-      displaytext = d.Age;
     } else {   
       d3.selectAll(".teacher")
       .transition()
@@ -362,18 +521,51 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
   function update(){
     d3.selectAll(".donutArcs").remove()
     d3.selectAll(".donutText").remove()
-    svg.select("rect.teachrect").remove()
-    svg.select("text.teacherdata").remove()
-    svg.select("text.name").remove()
-    svg.select("text.gender").remove()
-    svg.select("text.race").remove()
-    svg.select("text.age").remove()
+    svg.selectAll("rect.teachrect").remove()
+    svg.selectAll("text.teacherdata").remove()
+    svg.selectAll("text.name").remove()
+    svg.selectAll("text.gender").remove()
+    svg.selectAll("text.race").remove()
+    svg.selectAll("text.age").remove()
     svg.selectAll(".label").remove()
-    div.html("");
+    div.html("").style("height", "0px").style("width", "0px");
+    divdiff.html("").style("height", "0px").style("width", "0px");
 
-    if(d3.select("#agecheck").property("checked") && d3.select("#gendercheck").property("checked")){
-      counter = {'40-50 and ': 0, '51-60 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
-      pos = {'40-50 and Male': 0, '51-60 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
+    if(d3.select("#agecheck").property("checked") && d3.select("#gendercheck").property("checked") && d3.select("#racecheck").property("checked")){
+      counter = {'40-50, Male and Pacific Islander': 0, '40-50, Male and White': 0, '40-50, White and Female': 0, '51-60, White and Female': 0};
+      pos = {'40-50, Male and Pacific Islander': 0, '40-50, Male and White': 0, '40-50, White and Female': 0, '51-60, White and Female': 0};
+      d3.selectAll(".teacher")
+        .transition()
+        .attr("duration", 1000)
+        .attr("transform", "translate(100,0)")
+        .attr('y', r + .5*r - rectw)
+        .attr("x", function(d) {
+          if (d["Age"] <= 50 && d["Gender"] == "Male" && d['Race'] == "Pacific Islander") {
+            w = counter['40-50, Male and Pacific Islander']*(rectw+5);
+            counter['40-50, Male and Pacific Islander'] += 1;
+            pos['40-50, Male and Pacific Islander'] += w
+            return w;}
+          if (d["Age"] <= 50 && d["Gender"] == "Male" && d['Race'] == "White") {
+            w = WIDTH/6 + counter['40-50, Male and White']*(rectw+5);
+            counter['40-50, Male and White'] += 1;
+            pos['40-50, Male and White'] += w
+            return w;}
+          if (d["Age"] <= 50 && d["Gender"] == "Female" && d['Race'] == "White") {
+            w = WIDTH/3 + counter['40-50, White and Female']*(rectw+5);
+            counter['40-50, White and Female'] += 1;
+            pos['40-50, White and Female'] += w
+            return w;}
+          if (d["Age"] > 50 && d["Age"] <= 60 && d['Gender'] == "Female" && d['Race'] == "White") {
+            w = WIDTH/2 + counter['51-60, White and Female']*(rectw+5);
+            counter['51-60, White and Female'] += 1;
+            pos['51-60, White and Female'] += w
+            return w;}
+        })
+      textlabels(counter, pos)
+      grouplevel = true;
+    } else if(d3.select("#agecheck").property("checked") && d3.select("#gendercheck").property("checked")){
+      counter = {'40-50 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
+      pos = {'40-50 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -385,26 +577,22 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
             counter['40-50 and Male'] += 1;
             pos['40-50 and Male'] += w
             return w;}
-          if (d["Age"] > 51 && d["Age"] <= 60 && d['Gender'] == "Male") {
-            w = WIDTH/4 + counter['51-60 and Male']*(rectw+5);
-            counter['51-60 and Male'] += 1;
-            pos['51-60 and Male'] += w
-            return w;}
           if (d["Age"] <= 50 && d["Gender"] == "Female") {
-            w = WIDTH/3 + counter['40-50 and Female']*(rectw+5);
+            w = WIDTH/4 + counter['40-50 and Female']*(rectw+5);
             counter['40-50 and Female'] += 1;
             pos['40-50 and Female'] += w
             return w;}
-          if (d["Age"] > 51 && d["Age"] <= 60 && d['Gender'] == "Female") {
+          if (d["Age"] > 50 && d["Age"] <= 60 && d['Gender'] == "Female") {
             w = WIDTH/2 + counter['51-60 and Female']*(rectw+5);
             counter['51-60 and Female'] += 1;
             pos['51-60 and Female'] += w
             return w;}
         })
       textlabels(counter, pos)
+      grouplevel = true;
     } else if(d3.select("#agecheck").property("checked") && d3.select("#racecheck").property("checked")){
-      counter = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Filipino': 0, '51-60 and Filipino': 0};
-      pos = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Filipino': 0, '51-60 and Filipino': 0};
+      counter = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Pacific Islander': 0};
+      pos = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Pacific Islander': 0};
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -416,25 +604,22 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
             counter['40-50 and White'] += 1;
             pos['40-50 and White'] += w
             return w;}
-          if (d["Age"] > 51 && d["Age"] <= 60 && d["Race"] == "White") {
-            w = WIDTH/4 + counter['51-60 and White']*(rectw+5);
+          if (d["Age"] > 50 && d["Age"] <= 60 && d["Race"] == "White") {
+            w = WIDTH/2 + counter['51-60 and White']*(rectw+5);
             counter['51-60 and White'] += 1;
             pos['51-60 and White'] += w
             return w;}
-          if (d["Age"] <= 50 && d["Race"] == "Filipino") {
-            w = WIDTH/3 + counter['40-50 and Filipino']*(rectw+5);
-            counter['40-50 and Filipino'] += 1;
-            pos['40-50 and Filipino'] += w
-            return w;}
-          if (d["Age"] > 51 && d["Age"] <= 60 && d["Race"] == "Filipino") {
-            w = WIDTH/2 + counter['51-60 and Filipino']*(rectw+5);
-            counter['51-60 and Filipino'] += 1;
-            pos['51-60 and Filipino'] += w
+          if (d["Age"] <= 50 && d["Race"] == "Pacific Islander") {
+            w = WIDTH/3 + counter['40-50 and Pacific Islander']*(rectw+5);
+            counter['40-50 and Pacific Islander'] += 1;
+            pos['40-50 and Pacific Islander'] += w
             return w;}
         })
       textlabels(counter, pos)
+      grouplevel = true;
     } else if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")){
-      counter = {'wmcount': 0, 'bmcount': 0, 'fmcount': 0, 'wfcount': 0 ,'bfcount': 0, 'ffcount': 0};
+      counter = {'White and Male': 0, 'Pacific Islander and Male': 0, 'White and Female': 0};
+      pos = {'White and Male': 0, 'Pacific Islander and Male': 0, 'White and Female': 0};
 
       d3.selectAll(".teacher")
         .transition()
@@ -443,33 +628,26 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
       .attr('y', r + .5*r - rectw)
       .attr("x", function(d) {
         if (d["Race"] == "White" && d["Gender"] == "Male") {
-          w = counter.wmcount*(rectw+5);
-          counter.wmcount += 1;
+          w = counter['White and Male']*(rectw+5);
+          counter['White and Male'] += 1;
+          pos['White and Male'] += w;
           return w;}
-        if (d["Race"] == "Black" && d["Gender"] == "Male") {
-          w = WIDTH/8 + counter.bmcount*(rectw+5);
-          counter.bmcount += 1;
-          return w;}
-        if (d["Race"] == "Filipino" && d["Gender"] == "Male") {
-          w = WIDTH/5 + counter.fmcount*(rectw+5);
-          counter.fmcount += 1;
+        if (d["Race"] == "Pacific Islander" && d["Gender"] == "Male") {
+          w = WIDTH/1.4 + counter['Pacific Islander and Male']*(rectw+5);
+          counter['Pacific Islander and Male'] += 1;
+          pos['Pacific Islander and Male'] += w;
           return w;}
         if (d["Race"] == "White" && d["Gender"] == "Female") {
-          w = WIDTH/4 + counter.wfcount*(rectw+5);
-          counter.wfcount += 1;
-          return w;}
-        if (d["Race"] == "Black" && d["Gender"] == "Female") {
-          w = WIDTH/3 + counter.bfcount*(rectw+5);
-          counter.bfcount += 1;
-          return w;}
-        if (d["Race"] == "Filipino" && d["Gender"] == "Female") {
-          w = WIDTH/2+ counter.ffcount*(rectw+5);
-          counter.ffcount += 1;
+          w = WIDTH/6 + counter['White and Female']*(rectw+5);
+          counter['White and Female'] += 1;
+          pos['White and Female'] += w;
           return w;}
       });
+      textlabels(counter, pos)
+      grouplevel = true;
     }else if(d3.select("#racecheck").property("checked")){
-      counter = {'White': 0, 'Black': 0, 'Filipino': 0};
-      pos = {'White': 0, 'Black': 0, 'Filipino': 0}
+      counter = {'White': 0, 'Pacific Islander': 0};
+      pos = {'White': 0, 'Pacific Islander': 0}
       d3.selectAll(".teacher")
       .transition()
       .attr("duration", 1000)
@@ -481,42 +659,36 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
           counter.White += 1;
           pos.White += w
           return w;}
-        if (d["Race"] == "Black") {
-          w = WIDTH/3 + counter.Black*(rectw+5);
-          counter.Black += 1;
-          pos.Black += w
-          return w;}
-        if (d["Race"] == "Filipino") {
-          w = WIDTH/1.5 + counter.Filipino*(rectw+5);
-          counter.Filipino += 1;
-          pos.Filipino += w
+        if (d["Race"] == "Pacific Islander") {
+          w = WIDTH/1.5 + counter["Pacific Islander"]*(rectw+5);
+          counter["Pacific Islander"] += 1;
+          pos["Pacific Islander"] += w
           return w;}
       });
       textlabels(counter, pos)
-
+      grouplevel = true;
     } else if(d3.select("#gendercheck").property("checked")){
       counter = {'Male': 0, 'Female': 0};
       pos = {'Male': 0, 'Female': 0}
-
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
         .attr("transform", "translate(100,0)")
         .attr('y', r + .5*r - rectw)
         .attr("x", function(d) {
+          if (d["Gender"] == "Female") {
+            w = WIDTH/3 + counter.Female*(rectw+5);
+            counter.Female += 1;
+            pos.Female += w
+            return w;}
           if (d["Gender"] == "Male") {
             w = counter.Male*(rectw+5);
             counter.Male += 1;
             pos.Male += w
             return w;}
-          if (d["Gender"] == "Female") {
-            w = WIDTH/2 + counter.Female*(rectw+5);
-            counter.Female += 1;
-            pos.Female += w
-            return w;}
         })
       textlabels(counter, pos)
-
+      grouplevel = true;
     } else if(d3.select("#agecheck").property("checked")){
       counter = {'40-50': 0, '51-60': 0};
       pos = {'40-50': 0, '51-60': 0}
@@ -532,16 +704,16 @@ d3.tsv("Capstone Data.tsv", function(error, data) {
             counter['40-50'] += 1;
             pos['40-50'] += w
             return w;}
-          if (d["Age"] > 51 && d["Age"] <=60) {
+          if (d["Age"] > 50 && d["Age"] <=60) {
             w = WIDTH/2 + counter['51-60']*(rectw+5);
             counter['51-60'] += 1;
             pos['51-60'] += w
             return w;}
         })
       textlabels(counter, pos)
-
+      grouplevel = true;
     } else {
-      console.log("here")
+      grouplevel = false;
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -564,7 +736,8 @@ function textlabels(counter, pos) {
         .attr("x", pos[entry]/counter[entry] + rectw/5)
         .attr("y", r + .5*r + rectw/3)
         .style("text-anchor", "left")
-        .text(entry);
+        .text(entry)
+        .call(wrap, rectw);
     }
   }
 }

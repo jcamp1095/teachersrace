@@ -47,15 +47,42 @@ label {
   width: 960px;
 }
 
-#teachersvg { 
+#teachersvg {
       position: relative;
       width: 100%;
       color: black;
-    }
+}
 
 .buttontch {
-  position:absolute;
+  position:relative;
   bottom:0;
   left:0;
-
 }
+
+.viewcontainer {
+    height: 200px;
+    width: 500px;
+    border:2px solid #000;
+    overflow: scroll;
+    position: absolute;
+    right: 600px;
+}
+
+.summary {
+  overflow-y: scroll;
+  height: 500px;
+}
+
+.simdiff {
+  position: relative;
+  overflow-y: scroll;
+  background: #e6e1f9;
+}
+
+#imagelink {
+  width: 75%;
+}
+
+
+
+
