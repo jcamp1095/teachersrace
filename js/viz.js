@@ -3,7 +3,8 @@ var HEIGHT = window.innerHeight
 var rectw = 70;
 var colors = ["#00a0b0", "#FF0000", "#76448A", "#283747", "#2874A6", "#F5B041"];  
 var rects = [];
-var r = 150
+var r = 150;
+var cirlcepos = WIDTH/3.5;
 var simulation = d3.forceSimulation(rects);
 var grouplevel = false;
 var singledes = d3.select("body").append("div")
@@ -23,6 +24,8 @@ var div = d3.select("#teachersvg").append("div")
 var divdiff = d3.select("#teachersvg").append("div") 
       .attr("class", "simdiff")
 
+var teacherdiv = d3.select("#teachersvg").append("div")
+      .attr("class", "teacherdiff")
 
 d3.csv("Capstone Data.csv", function(error, data) {
   d3.select("#racecheck").on("change",update);
@@ -60,6 +63,9 @@ d3.csv("Capstone Data.csv", function(error, data) {
     svg.selectAll("text.name").remove()
     div.html("").style("height", "0px").style("width", "0px");
     divdiff.html("").style("height", "0px").style("width", "0px");
+    teacherdiv.html("").style("height", "0px").style("width", "0px");
+    document.getElementById("buttontch").style.bottom = "0px";
+
     counter = {'rga': 0, 'rg': 0, 'ra': 0, 'ga': 0 ,'r': 0, 'g': 0, 'a': 0};  
 
     if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked") && d3.select("#racecheck").property("checked") && grouplevel){
@@ -207,7 +213,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
         .transition()
         .attr("duration", 1000)
         .attr('x', function(d, i) { 
-          if (d['Name'] == d1['Name']) {return WIDTH/2 - rectw/2 - 100;}
+          if (d['Name'] == d1['Name']) {return cirlcepos - rectw/2 - 100;}
           else {return WIDTH;}
         })
         .attr('y', r + .5*r - rectw)
@@ -258,6 +264,9 @@ d3.csv("Capstone Data.csv", function(error, data) {
       .style("bottom", .95*bottom+"px")
       .style("height", "200px")
       .style("width", wid+"px");
+
+      document.getElementById("buttontch").style.bottom = "400px"
+
   }
 
 
@@ -272,46 +281,55 @@ d3.csv("Capstone Data.csv", function(error, data) {
     bar = d3.select("g")
       .attr("transform", function(d, i) { return "translate(0,0)"; });
 
+    document.getElementById("buttontch").style.bottom = "285px";
+    //TODO make rect scrollable like in group view
+    teacherdiv.html(questiontext)
+    .style("left", WIDTH-1.48*w+"px")
+    .style("bottom", HEIGHT/1.51+"px")
+    .style("height", .95*h+"px")
+    .style("width", 1.15*w+"px")
+
+
     bar.append("rect")
         .attr("class", "teachrect")
-        .attr("width", w)
+        .attr("width", 1.2*w)
         .attr("height", h)
         .attr("fill", "gray")
         .attr("stroke", "black")
         .attr("stroke-width", .5)
         .attr("opacity", .2)
         .attr("y", .5*r)
-        .attr("x", WIDTH - w);
+        .attr("x", WIDTH - 1.5*w);
 
-    bar.append("text")
-        .attr("class", "teacherdata")
-        .attr("x", WIDTH - w + 10)
-        .attr("y", .5*r + 20)
-        .attr("dy", ".35em")
-        .text(questiontext)
-        .call(wrap, w - 10);
+    // bar.append("text")
+    //     .attr("class", "teacherdata")
+    //     .attr("x", WIDTH - w + 10)
+    //     .attr("y", .5*r + 20)
+    //     .attr("dy", ".35em")
+    //     .text(questiontext)
+    //     .call(wrap, w - 10);
 
     bar.append("text")
         .attr("class", "name")
-        .attr("x", WIDTH/2)
+        .attr("x", cirlcepos)
         .attr("y", r + .65*r)
         .style("text-anchor", "middle")
         .text(d.Name)
     bar.append("text")
         .attr("class", "race")
-        .attr("x", WIDTH/2)
+        .attr("x", cirlcepos)
         .attr("y", r + .65*r + 20)
         .style("text-anchor", "middle")
         .text(d.Race)
     bar.append("text")
         .attr("class", "gender")
-        .attr("x", WIDTH/2)
+        .attr("x", cirlcepos)
         .attr("y", r + .65*r + 40)
         .style("text-anchor", "middle")
         .text(d.Gender)
     bar.append("text")
         .attr("class", "age")
-        .attr("x", WIDTH/2)
+        .attr("x", cirlcepos)
         .attr("y", r + .65*r + 60)
         .style("text-anchor", "middle")
         .text(d.Age)
@@ -321,7 +339,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
   function handleOneView(d, r) {
     var svg = d3.select("g")
        .append("g").attr("class", "wrapper")
-      .attr("transform", "translate(" + (WIDTH/2) + "," + (r + .5*r) + ")");
+      .attr("transform", "translate(" + (cirlcepos) + "," + (r + .5*r) + ")");
 
     ////////////////////////////////////////////////////////////// 
     ///////////////////// Data &  Scales ///////////////////////// 
@@ -329,16 +347,18 @@ d3.csv("Capstone Data.csv", function(error, data) {
 
     //Some random data
     var donutData = [
-      {name: "Q1",  value: 15, data: d['School Type Attended'], question: "School Type Attended"},
-      {name: "Q2",    value: 15, data: d['Current Job in Education'], question: 'Current Job in Education'},
-      {name: "Q3",   value: 15, data: d['Past Jobs in Education'], question: 'Past Jobs in Education'},
-      {name: "Q4",   value: 15, data: d['3 Favorite Books '], question: '3 Favorite Books'},
-      {name: "Q5",  value: 15, data: d['Makeup of population how does identity'], question: 'Makeup of population, how does identity'},
-      {name: "Q6",  value: 15, data: d['Racial identity influence'], question: 'Racial identity influence'},
-      {name: "Q7", value: 15, data: d['misbehaved meaning'], question: 'misbehaved meaning'},
-      {name: "Q8",   value: 15, data: d['classroom setup'], question: 'classroom setup'},
-      {name: "Q9", value: 15, data: d['cultural competency'], question: 'cultural competency'},
-      {name: "Q10",   value: 15, data: d['proficiency of CC'], question: 'proficiency of CC'}
+      {name: "1",  value: 15, data: d['School Type Attended'], question: "School Type Attended"},
+      {name: "2",    value: 15, data: d['Current Job in Education'], question: 'Current Job in Education'},
+      {name: "3",   value: 15, data: d['Past Jobs in Education'], question: 'Past Jobs in Education'},
+      {name: "4",   value: 15, data: d['3 Favorite Books '], question: '3 Favorite Books'},
+      {name: "5",  value: 15, data: d['Makeup of population how does identity'], question: 'Makeup of population, how does identity'},
+      {name: "6",  value: 15, data: d['Racial identity influence'], question: 'Racial identity influence'},
+      {name: "7",  value: 15, data: d['Well-behaved meaning'], question: "Well-behaved meaning"},
+      {name: "8", value: 15, data: d['misbehaved meaning'], question: 'misbehaved meaning'},
+      {name: "9", value: 15, data: d['disciplinary strategy'], question: 'disciplinary strategy'},
+      {name: "10",   value: 15, data: d['classroom setup'], question: 'classroom setup'},
+      {name: "11", value: 15, data: d['cultural competency'], question: 'cultural competency'},
+      {name: "12",   value: 15, data: d['proficiency of CC'], question: 'proficiency of CC'}
     ];
 
     //Create an arc function   
@@ -351,7 +371,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
       .startAngle(-90 * Math.PI/180)
       .endAngle(-90 * Math.PI/180 + 2*Math.PI)
       .value(function(d) { return d.value; })
-      .padAngle(.3)
+      .padAngle(.25)
       .sort(null);
      
     ////////////////////////////////////////////////////////////// 
@@ -422,11 +442,14 @@ d3.csv("Capstone Data.csv", function(error, data) {
   function handleQuestionClick(d, i) {
     questiontext = d.data.data;
     question = d.data.question;
-    svg.select("text.teacherdata")
-      .text(question + ':\n' + questiontext)
-      .call(wrap, 290);
+    // svg.select("text.teacherdata")
+    //   .text(question + ':\n' + questiontext)
+    //   .call(wrap, 290);
     svg.select("rect.teachrect")
       .style("fill", colorScale(i));
+    teacherdiv
+      .html(question + ": <br>"+ questiontext);
+
   }
 
   function handleQuestionMouseOver(d, i) {
@@ -519,6 +542,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
   }
 
   function update(){
+    console.log(HEIGHT)
     d3.selectAll(".donutArcs").remove()
     d3.selectAll(".donutText").remove()
     svg.selectAll("rect.teachrect").remove()
@@ -530,6 +554,8 @@ d3.csv("Capstone Data.csv", function(error, data) {
     svg.selectAll(".label").remove()
     div.html("").style("height", "0px").style("width", "0px");
     divdiff.html("").style("height", "0px").style("width", "0px");
+    teacherdiv.html("").style("height", "0px").style("width", "0px");
+    document.getElementById("buttontch").style.bottom = "0px";
 
     if(d3.select("#agecheck").property("checked") && d3.select("#gendercheck").property("checked") && d3.select("#racecheck").property("checked")){
       counter = {'40-50, Male and Pacific Islander': 0, '40-50, Male and White': 0, '40-50, White and Female': 0, '51-60, White and Female': 0};

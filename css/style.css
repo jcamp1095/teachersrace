@@ -53,10 +53,10 @@ label {
       color: black;
 }
 
-.buttontch {
-  position:relative;
-  bottom:0;
-  left:0;
+#buttontch {
+  position:absolute;
+  bottom:0px;
+  right:0px;
 }
 
 .viewcontainer {
@@ -70,17 +70,25 @@ label {
 
 .summary {
   overflow-y: scroll;
-  height: 500px;
+  height: 40%;
 }
 
 .simdiff {
   position: relative;
   overflow-y: scroll;
   background: #e6e1f9;
+  z-index: 1;
+}
+
+.teacherdiff {
+  position: relative;
+  overflow-y: scroll;
+  background: none;
+  z-index: 1;
 }
 
 #imagelink {
-  width: 75%;
+  width: 60%;
 }
 
 
