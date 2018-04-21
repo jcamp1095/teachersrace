@@ -283,6 +283,12 @@ d3.csv("Capstone Data.csv", function(error, data) {
 
     document.getElementById("buttontch").style.bottom = "285px";
     //TODO make rect scrollable like in group view
+    // teacherdiv.html(questiontext)
+    // .style("left", WIDTH-1.48*w+"px")
+    // .style("bottom", HEIGHT/1.51+"px")
+    // .style("height", .95*h+"px")
+    // .style("width", 1.15*w+"px")
+
     teacherdiv.html(questiontext)
     .style("left", WIDTH-1.48*w+"px")
     .style("bottom", HEIGHT/1.51+"px")
@@ -290,16 +296,16 @@ d3.csv("Capstone Data.csv", function(error, data) {
     .style("width", 1.15*w+"px")
 
 
-    bar.append("rect")
-        .attr("class", "teachrect")
-        .attr("width", 1.2*w)
-        .attr("height", h)
-        .attr("fill", "gray")
-        .attr("stroke", "black")
-        .attr("stroke-width", .5)
-        .attr("opacity", .2)
-        .attr("y", .5*r)
-        .attr("x", WIDTH - 1.5*w);
+    // bar.append("rect")
+    //     .attr("class", "teachrect")
+    //     .attr("width", 1.2*w)
+    //     .attr("height", h)
+    //     .attr("fill", "gray")
+    //     .attr("stroke", "black")
+    //     .attr("stroke-width", .5)
+    //     .attr("opacity", .2)
+    //     .attr("y", .5*r)
+    //     .attr("x", WIDTH - 1.5*w);
 
     // bar.append("text")
     //     .attr("class", "teacherdata")
@@ -445,10 +451,16 @@ d3.csv("Capstone Data.csv", function(error, data) {
     // svg.select("text.teacherdata")
     //   .text(question + ':\n' + questiontext)
     //   .call(wrap, 290);
-    svg.select("rect.teachrect")
-      .style("fill", colorScale(i));
+    // svg.select("rect.teachrect")
+    //   .style("fill", colorScale(i));
+
+    color = colorScale(i)
+    color = color.substring(0, color.length - 1);
+    color += ', .2)';
+
     teacherdiv
-      .html(question + ": <br>"+ questiontext);
+      .html(question + ": <br>"+ questiontext)
+      .style("background", color);
 
   }
 
@@ -807,6 +819,14 @@ var colorScale = d3.scaleLinear()
    .range(["#2c7bb6", "#ffffbf", "#d7191c"])
    .interpolate(d3.interpolateHcl);
 
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
 
 
 

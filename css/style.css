@@ -83,7 +83,7 @@ label {
 .teacherdiff {
   position: relative;
   overflow-y: scroll;
-  background: none;
+  background:  rgb(128,128,128, .2);
   z-index: 1;
 }
 
