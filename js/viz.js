@@ -7,6 +7,7 @@ var r = 150;
 var cirlcepos = WIDTH/3.5;
 var simulation = d3.forceSimulation(rects);
 var grouplevel = false;
+var onbackgroup = true;
 var singledes = d3.select("body").append("div")
 var screenWidth = window.innerWidth;
 var margin = {left: 20, top: 20, right: 20, bottom: 20},
@@ -64,13 +65,31 @@ d3.csv("Capstone Data.csv", function(error, data) {
     div.html("").style("height", "0px").style("width", "0px");
     divdiff.html("").style("height", "0px").style("width", "0px");
     teacherdiv.html("").style("height", "0px").style("width", "0px");
+    d3.selectAll(".donutArcs").remove()
+    d3.selectAll(".donutText").remove()
+    d3.selectAll("rect.backbutton").remove()
+    d3.selectAll("text.back").remove()
+    svg.selectAll("rect.teachrect").remove()
+    svg.selectAll("text.teacherdata").remove()
+    svg.selectAll("text.name").remove()
+    svg.selectAll("text.gender").remove()
+    svg.selectAll("text.race").remove()
+    svg.selectAll("text.age").remove()
+    svg.selectAll(".label").remove()
+    document.getElementById("buttontch").style.bottom = "0px";
     document.getElementById("buttontch").style.bottom = "0px";
 
     counter = {'rga': 0, 'rg': 0, 'ra': 0, 'ga': 0 ,'r': 0, 'g': 0, 'a': 0};  
 
     if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked") && d3.select("#racecheck").property("checked") && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      if (d1['Gender'] == 'Female' && d1['Age'] <= 50 && d1['Race'] == 'White') {
+          simtext = "<h6>Similarities</h6><ul><li>See “Female 40-50” category</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>See “Female 40-50” category</li></ul>";
+      } else if (d1['Gender'] == 'Female' && d1['Age'] > 50 && d1['Age'] <= 60 && d1['Race'] == 'White') {
+          simtext = "<h6>Similarities</h6><ul><li>See “51-60” category</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>See “51-60” category</li></ul>";
+      }
+
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -86,12 +105,22 @@ d3.csv("Capstone Data.csv", function(error, data) {
           oneteacher(d1);
         } else {
           grouplevel = false;
+          onbackgroup = false;
           makesimdifftext(simtext, difftext, counter.rga)
           makegroupname("Group: " + d1['Race'] + ", " + d1['Gender'] + " and ", true, d1['Age'])
         }
     } else if(d3.select("#gendercheck").property("checked") && d3.select("#agecheck").property("checked")  && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      if (d1['Gender'] == 'Male' && d1['Age'] <= 50) {
+          simtext = "<h6>Similarities</h6><ul><li>See “Male” category</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>See “Male” category</li></ul>";
+      } else if (d1['Gender'] == 'Female' && d1['Age'] <= 50) {
+          simtext = "<h6>Similarities</h6><ul><li>The 40-50 year old females had almost the exact same answers about school population demographics. Both had short mantras for disciplinary strategies: “power of words, love, and logic” and “choose your battles”</li><li>Both see themselves as moderately culturally competent</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>One respondent answered positively to their background affecting their discussions and guidance of kids, while the other didn’t feel that it was very apparent</li></li>One teacher emphasized set expectations and consequences and the other understood behavior to be influenced by factors outside of the classroom</li><li>One understood cultural competency to reflect how home life can lead to different reactions in a situation and a teacher’s willingness to try different approaches to accommodate this, the other stated the definition to be open and respectful to cultural differences</li></ul>";
+      } else if (d1['Gender'] == 'Female' && d1['Age'] > 50 && d1['Age'] <= 60) {
+          simtext = "<h6>Similarities</h6><ul><li>See “51-60” category</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>See “51-60” category</li></ul>";
+      }
+
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -104,11 +133,17 @@ d3.csv("Capstone Data.csv", function(error, data) {
           else {return WIDTH;}
         })
         grouplevel = false;
+        onbackgroup = false;
         makesimdifftext(simtext, difftext, counter.ga)
         makegroupname("Group: " + d1['Gender'] + " and ", true, d1['Age'])
     } else if(d3.select("#racecheck").property("checked") && d3.select("#agecheck").property("checked")  && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+        if (d1['Race'] == 'White' && d1['Age'] <= 50) {
+          simtext = "<h6>Similarities</h6><ul><li>See “40-50” category sans Principal’s response</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>See “40-50” category sans Principal’s response</li></ul>";
+        } else if (d1['Race'] == 'White' && d1['Age'] > 50 && d1['Age'] <= 60) {
+          simtext = "<h6>Similarities</h6><ul><li>See “51-60” category</li></ul>";
+          difftext = "<h6>Differences</h6><ul><li>See “51-60” category</li></ul>";
+        }
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -124,12 +159,15 @@ d3.csv("Capstone Data.csv", function(error, data) {
           oneteacher(d1);
         } else {
           grouplevel = false;
+          onbackgroup = false;
           makesimdifftext(simtext, difftext, counter.ra)
           makegroupname("Group: " + d1['Race'] +  " and ", true, d1['Age'])
         }
     } else if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")  && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      if (d1['Race'] == 'White' && d1['Gender'] == 'Female') {
+        simtext = "<h6>Similarities</h6><ul><li>See “Female” category</li></ul>";
+        difftext = "<h6>Differences</h6><ul><li>See “Female” category</li></ul>";
+      }
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -145,12 +183,15 @@ d3.csv("Capstone Data.csv", function(error, data) {
           oneteacher(d1);
         } else {
           grouplevel = false;
+          onbackgroup = false;
           makesimdifftext(simtext, difftext, counter.rg)
           makegroupname("Group: " + d1['Race'] + " and " + d1['Gender'], false, 0)
         }
     } else if(d3.select("#racecheck").property("checked") && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      if (d1['Race'] == 'White') {
+        simtext = "<h6>Similarities</h6><ul><li>This category overwhelming reflects our nation’s teaching force. Whiteness is a pervasive element in United States academia. Only three of the White staff point out that it is also mostly female teachers in charge of classrooms</li><li>Additionally, none of the White staff were able to completely and confidently insist that their background was constantly affecting their lesson plans, while the one staff member of color was able to do so</li><li>Behavior/misbehavior answers were relatively similar, and disciplinary strategies ranged between restorative measures, to making sure a conversation with an individual is held, to choosing the battles to have</li></ul>";
+        difftext = "<h6>Differences - An Analysis of book choice</h6><ul><li>Every teacher had a different set of books that they chose as their favorite to read to their students. These differences of author and title were not without their similarities either. Almost every teacher’s books were written by either a White Male or Female. The only three non-white authors were Eloise Greenfield, R.J. Palacio, and MLK Jr. This lack of author diversity speaks greatly towards the incorporation of different literature styles, backgrounds, and themes into classrooms. However, there was a wide variety of subject matter covered by these authors, whether White or non-White. Through these books, children learn about acceptance, having bad days, to love the outdoors, to discuss idioms, to solve problems, to be empathetic, to laugh and experience the joys of life, and to overcome obstacles. Additionally, the reasonings for choosing these “3 favorite books” varied. Teachers cited student excitement and intrigue, lessons of acceptance and individuality, laughter, interesting plots, kinetic activities, and a general need for reading as determiners of a good book choice.</li></ul>";
+      }
         d3.selectAll(".teacher")
           .transition()
           .attr("duration", 1000)
@@ -166,13 +207,19 @@ d3.csv("Capstone Data.csv", function(error, data) {
           oneteacher(d1);
         } else {
           grouplevel = false;
+          onbackgroup = false;
           makesimdifftext(simtext, difftext, counter.r)
           makegroupname("Group: " + d1['Race'], false, 0)
         }
     } else if(d3.select("#gendercheck").property("checked")  && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
-      d3.selectAll(".teacher")
+      if (d1['Gender'] == 'Male') {
+        simtext = "<h6>Similarities</h6><ul><li>Attended Public School</li><li>Using Restorative Practices as Disciplinary Strategy</li><li>Collaborative group seating </li><li>Cultural Competency means being understanding of diverse cultures</li><li>They both believe they hold a high level of proficiency and sensitivity</li></ul>";
+        difftext = "<h6>Differences</h6><ul><li>Different jobs in Education</li><li>Different favorite books and reasoning behind it</li><li>Slightly different ideas about what the school population looks like</li><li>Racial/socioeconomic identity affects them, but to different degrees and for different reasons</li><li>Different major descriptors of what well-behaved and misbehaved mean </li></ul>";
+      } else if (d1['Gender'] == 'Female') {
+        simtext = "<h6>Similarities</h6><ul><li>All attended some type of Public school at one point</li><li>Most of them recognize that their staff is mostly White and Female</li><li>Most understand a well-behaved student to be respectful, a rule/direction follower, and to not disrupt the learning of others</li><li>Misbehavior tends to be understood as a hurtful or disrespectful student who does not take care of school property and is unkind/dishonest</li><li>Most classrooms are set up in collaborative desk groups</li><li>Most understand cultural competency to be the ability to understand differences in cultures and the openness and acceptance of this diversity</li></ul>";
+        difftext = "<h6>Differences</h6><ul><li>There is disagreement about level of proficiency in cultural competency and even if that is their duty to uphold, some believe that school district training created proficiency, others learned from self-experience, families of students, literature, or online trainings</li><li>Disciplinary strategies differ among the women. Some are using restorative practices, others have private chats, some choose their battles, others try to build relationships and understand their students. One in particular mentions how incorporating the love of reading into her classroom allows for management to be much smoother</li><li>The influence of a female’s background varies widely. Some are very aware that their racial identity and socioeconomic background influence lesson plans, others reveal that they are completely unaware if this happens, while a few say it sometimes does, and one is adamant to prevent this influence from trickling into her classroom</li><li>These women, answered with slight discrepancies about the population of students. Some said 90% White and 10% other, while others claimed the school was much more diverse than the staff. One mentioned the number of countries represented, another talked about the volume of mixed race students, free and reduced lunch students, and the qualification as a Title I school</li><li>All of these women chose different favorite books and had different reasons behind their choices</li></ul>";
+      }
+     d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
         .attr('x', function(d, i) { 
@@ -184,11 +231,17 @@ d3.csv("Capstone Data.csv", function(error, data) {
           else {return WIDTH;}
         })
         grouplevel = false;
+        onbackgroup = false;
         makesimdifftext(simtext, difftext, counter.g)
         makegroupname("Group: " + d1['Gender'], false, 0)
     } else if(d3.select("#agecheck").property("checked")  && grouplevel){
-      simtext = "Similarities:"+"<br>"+ "My Capstone Project seeks to understand the question of: What do teachers think about race? and What do they think they’re supposed to think? So often we hear about schools, teachers, and administrators engaging in “Diversity Trainings” and culturally competent professional development seminars, but how does this really manifest in the classroom? I was curious to find out. With a little bit of persuasiveness and a lot of Midwestern kindness, I was able to get a sample of 6 teachers from an elementary school in Grand Rapids, Michigan. For the privacy of the respondents and the school district I won’t be using any real names.";
-      difftext = "Differences:"+"<br>"+ "TESTESTESTESTTEST";
+      if (d1['Age'] <= 50) {
+        simtext = "<h6>Similarities</h6><ul><li>All say they have moderate-high level of Cultural Competency proficiency, meaning that they are open, respectful, able to understand, and have empathy of diverse cultures</li><li>A couple have cultural posters around the room and a group meeting area in the room</li><li>Misbehaving to them is not following the rules with poor relationships to staff and community</li><li>Most answered relatively positively about the influence of their background, however not to an extreme degree in comparison to the Principal who states that his background is “why I am in education.”</li></ul>";
+        difftext = "<h6>Differences</h6><ul><li>Disciplinary strategy ranges from short but sweet responses like “power of words, love, and logic”/ “choose your battles” to more detailed explanation of restorative practices</li></ul>";
+      } else if (d1['Age'] > 50 && d1['Age'] <= 60) {
+        simtext = "<h6>Similarities</h6><ul><li>This age group had less of a grasp on overall makeup of population. They understood that the Staff was predominately White, yet struggled to respond at all or describe in detail the student body</li><li>Behavior and misbehavior definitions were very close</li><li>Most of these teachers use verbal conversations to address misbehavior and to discipline</li><li>Cultural competency definitions mirrored each other</li></ul>";
+        difftext = "<h6>Differences</h6><ul><li>Whether or not their background identity affected their school life had a variety of responses for this age group</li><li>Some tried not to use background as an influence, some said it initially formulates ideas, and some didn’t think so at all</li><li>Some teachers hoped that they were culturally competent, others attributed training and upbringings, while some said they didn’t think it was their job to teach anything culturally competent, yet they embrace all cultures</li></ul>";
+      }
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -201,14 +254,15 @@ d3.csv("Capstone Data.csv", function(error, data) {
           else {return WIDTH;}
         })
         grouplevel = false;
+        onbackgroup = false;
         makesimdifftext(simtext, difftext, counter.a)
         makegroupname("Group: ", true, d1['Age'])
     } else {
-      oneteacher(d1);
+      oneteacher(d1, i);
     }
   }
 
-  function oneteacher(d1) {
+  function oneteacher(d1, i) {
     d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
@@ -217,13 +271,14 @@ d3.csv("Capstone Data.csv", function(error, data) {
           else {return WIDTH;}
         })
         .attr('y', r + .5*r - rectw)
-        handleOneView(d1, r)
-        makeQuestionText(d1)
-        grouplevel = false;
+    handleOneView(d1, r)
+    makeQuestionText(d1, i)
+    grouplevel = false;
   }
 
   function makegroupname(name, useage, age) {
     groupname = d3.select("g")
+      .attr("transform", function(d, i) { return "translate(0,0)"; });
 
     if (useage && age <= 50) {
       name += "40-50"
@@ -270,7 +325,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
   }
 
 
-  function makeQuestionText(d) {
+  function makeQuestionText(d, i) {
     svg.selectAll("rect.teachrect").remove()
     svg.selectAll("text.teacherdata").remove();
 
@@ -282,12 +337,6 @@ d3.csv("Capstone Data.csv", function(error, data) {
       .attr("transform", function(d, i) { return "translate(0,0)"; });
 
     document.getElementById("buttontch").style.bottom = "285px";
-    //TODO make rect scrollable like in group view
-    // teacherdiv.html(questiontext)
-    // .style("left", WIDTH-1.48*w+"px")
-    // .style("bottom", HEIGHT/1.51+"px")
-    // .style("height", .95*h+"px")
-    // .style("width", 1.15*w+"px")
 
     teacherdiv.html(questiontext)
     .style("left", WIDTH-1.48*w+"px")
@@ -295,25 +344,35 @@ d3.csv("Capstone Data.csv", function(error, data) {
     .style("height", .95*h+"px")
     .style("width", 1.15*w+"px")
 
+    bar.append("rect")
+        .attr("class", "backbutton")
+        .attr("width", rectw)
+        .attr("height", rectw/2)
+        .attr("fill", "gray")
+        .attr("stroke", "black")
+        .attr("stroke-width", .5)
+        .attr("opacity", .2)
+        .on("click", function() {
+          console.log(onbackgroup)
+          if (onbackgroup) {
+            update()
+          } else {
+            grouplevel = true;
+            handleMouseClick(d, i)
+          }
+        })
+        .on("mouseover", function() {
+          d3.select("backbutton").attr("opacity", .5)
+        })
+        .attr("y", 0)
+        .attr("x", 0);
 
-    // bar.append("rect")
-    //     .attr("class", "teachrect")
-    //     .attr("width", 1.2*w)
-    //     .attr("height", h)
-    //     .attr("fill", "gray")
-    //     .attr("stroke", "black")
-    //     .attr("stroke-width", .5)
-    //     .attr("opacity", .2)
-    //     .attr("y", .5*r)
-    //     .attr("x", WIDTH - 1.5*w);
-
-    // bar.append("text")
-    //     .attr("class", "teacherdata")
-    //     .attr("x", WIDTH - w + 10)
-    //     .attr("y", .5*r + 20)
-    //     .attr("dy", ".35em")
-    //     .text(questiontext)
-    //     .call(wrap, w - 10);
+    bar.append("text")
+      .attr("class", "back")
+      .attr("x", rectw/2)
+      .attr("y", 22)
+      .style("text-anchor", "middle")
+      .text("Back")
 
     bar.append("text")
         .attr("class", "name")
@@ -353,18 +412,18 @@ d3.csv("Capstone Data.csv", function(error, data) {
 
     //Some random data
     var donutData = [
-      {name: "1",  value: 15, data: d['School Type Attended'], question: "School Type Attended"},
-      {name: "2",    value: 15, data: d['Current Job in Education'], question: 'Current Job in Education'},
-      {name: "3",   value: 15, data: d['Past Jobs in Education'], question: 'Past Jobs in Education'},
-      {name: "4",   value: 15, data: d['3 Favorite Books '], question: '3 Favorite Books'},
-      {name: "5",  value: 15, data: d['Makeup of population how does identity'], question: 'Makeup of population, how does identity'},
-      {name: "6",  value: 15, data: d['Racial identity influence'], question: 'Racial identity influence'},
-      {name: "7",  value: 15, data: d['Well-behaved meaning'], question: "Well-behaved meaning"},
-      {name: "8", value: 15, data: d['misbehaved meaning'], question: 'misbehaved meaning'},
-      {name: "9", value: 15, data: d['disciplinary strategy'], question: 'disciplinary strategy'},
-      {name: "10",   value: 15, data: d['classroom setup'], question: 'classroom setup'},
-      {name: "11", value: 15, data: d['cultural competency'], question: 'cultural competency'},
-      {name: "12",   value: 15, data: d['proficiency of CC'], question: 'proficiency of CC'}
+      {name: "1",  value: 15, data: d['a'], question: "Type of School District Attended"},
+      {name: "2",    value: 15, data: d['b'], question: 'Current Job in Education'},
+      {name: "3",   value: 15, data: d['c'], question: 'Past Job in Education'},
+      {name: "4",   value: 15, data: d['d'], question: 'What are 3 of your favorite books to read to students? Why?'},
+      {name: "5",  value: 15, data: d['e'], question: 'Describe the makeup of the student and staff population at your school.'},
+      {name: "6",  value: 15, data: d['f'], question: 'Does your racial identity and socioeconomic background influence your lesson plans, interactions with students, and development of your role in a school environment?'},
+      {name: "7",  value: 15, data: d['g'], question: 'What does it mean for a student to be well-behaved?'},
+      {name: "8", value: 15, data: d['h'], question: 'What does it mean for a student to be misbehaved? What leads to misbehavior in your classroom?'},
+      {name: "9", value: 15, data: d['i'], question: 'What is your disciplinary strategy? What would you like to implement or change about how your school handles students who misbehave repeatedly?'},
+      {name: "10",   value: 15, data: d['j'], question: 'Draw a picture of your classroom or describe how it is set up. How are desks arranged? What is hung on the walls?'},
+      {name: "11", value: 15, data: d['k'], question: 'What does "Cultural Competency" mean to you?'},
+      {name: "12",   value: 15, data: d['l'], question: 'Do you believe that you hold a high proficiency of cultural competency in your classroom? How did you learn the skills to do so?'}
     ];
 
     //Create an arc function   
@@ -448,18 +507,18 @@ d3.csv("Capstone Data.csv", function(error, data) {
   function handleQuestionClick(d, i) {
     questiontext = d.data.data;
     question = d.data.question;
-    // svg.select("text.teacherdata")
-    //   .text(question + ':\n' + questiontext)
-    //   .call(wrap, 290);
-    // svg.select("rect.teachrect")
-    //   .style("fill", colorScale(i));
 
     color = colorScale(i)
     color = color.substring(0, color.length - 1);
     color += ', .2)';
 
+    text = question + "<br>"+ questiontext
+    if (d.data.name == "10" && d.data.data == "drawing") {
+      text = question + "<br><img src='img/q10.jpeg' width='98%' hspace='1%'>";
+    }
+
     teacherdiv
-      .html(question + ": <br>"+ questiontext)
+      .html(text)
       .style("background", color);
 
   }
@@ -557,6 +616,8 @@ d3.csv("Capstone Data.csv", function(error, data) {
     console.log(HEIGHT)
     d3.selectAll(".donutArcs").remove()
     d3.selectAll(".donutText").remove()
+    d3.selectAll("rect.backbutton").remove()
+    d3.selectAll("text.back").remove()
     svg.selectAll("rect.teachrect").remove()
     svg.selectAll("text.teacherdata").remove()
     svg.selectAll("text.name").remove()
@@ -601,6 +662,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
         })
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     } else if(d3.select("#agecheck").property("checked") && d3.select("#gendercheck").property("checked")){
       counter = {'40-50 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
       pos = {'40-50 and Male': 0, '40-50 and Female': 0, '51-60 and Female': 0};
@@ -628,6 +690,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
         })
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     } else if(d3.select("#agecheck").property("checked") && d3.select("#racecheck").property("checked")){
       counter = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Pacific Islander': 0};
       pos = {'40-50 and White': 0, '51-60 and White': 0, '40-50 and Pacific Islander': 0};
@@ -655,6 +718,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
         })
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     } else if(d3.select("#racecheck").property("checked") && d3.select("#gendercheck").property("checked")){
       counter = {'White and Male': 0, 'Pacific Islander and Male': 0, 'White and Female': 0};
       pos = {'White and Male': 0, 'Pacific Islander and Male': 0, 'White and Female': 0};
@@ -683,6 +747,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
       });
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     }else if(d3.select("#racecheck").property("checked")){
       counter = {'White': 0, 'Pacific Islander': 0};
       pos = {'White': 0, 'Pacific Islander': 0}
@@ -705,6 +770,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
       });
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     } else if(d3.select("#gendercheck").property("checked")){
       counter = {'Male': 0, 'Female': 0};
       pos = {'Male': 0, 'Female': 0}
@@ -727,6 +793,7 @@ d3.csv("Capstone Data.csv", function(error, data) {
         })
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     } else if(d3.select("#agecheck").property("checked")){
       counter = {'40-50': 0, '51-60': 0};
       pos = {'40-50': 0, '51-60': 0}
@@ -750,8 +817,10 @@ d3.csv("Capstone Data.csv", function(error, data) {
         })
       textlabels(counter, pos)
       grouplevel = true;
+      onbackgroup = true;
     } else {
       grouplevel = false;
+      onbackgroup = true;
       d3.selectAll(".teacher")
         .transition()
         .attr("duration", 1000)
