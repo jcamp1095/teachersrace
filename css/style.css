@@ -15,7 +15,7 @@
 }
 
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Computer Modern Sans", sans-serif;
 }
 
 .axis text {
@@ -91,6 +91,13 @@ label {
   width: 60%;
 }
 
+#impacttext {
+  color: #3D72A4;
+}
+
+#subtitletext {
+  color: #ffffff;
+}
 
 
 
